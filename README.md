@@ -2,13 +2,23 @@
 
 ## Lancer en local
 
+L'API utilise l'Ollama **de la machine hôte** (configuré dans `.env`).
+
 ```bash
-uv sync
-uv run projet          # http://localhost:8000/docs
+docker compose up -d --build        # backend sur http://localhost:8000/docs
+uv sync && uv run projet            # ou directement sur l'hôte
 ```
 
-Ollama doit tourner sur `http://localhost:11434` (ou définir `OLLAMA_BASE_URL`).
-Variables : `OLLAMA_BASE_URL`, `OLLAMA_MODEL` (défaut `ministral-3:3b`), `OLLAMA_TIMEOUT`, `HOST`, `PORT`.
+- Depuis le conteneur, l'hôte est joignable via `host.docker.internal:11434` (valeur d'`OLLAMA_BASE_URL` dans `.env`, avec `extra_hosts` pour Linux).
+- Sur l'hôte, `uv run projet` utilise `http://localhost:11434` par défaut.
+- Le modèle est `OLLAMA_MODEL` dans `.env` (`ministral-3:8b`).
+
+Pour utiliser un Ollama conteneurisé à la place :
+
+```bash
+# .env : OLLAMA_BASE_URL=http://ollama:11434
+docker compose --profile compose-ollama up -d
+```
 
 ## API
 
@@ -22,15 +32,7 @@ curl -X POST http://localhost:8000/chat \
 ```
 
 ```json
-{"model": "ministral-3:3b", "response": "Paris."}
+{"model": "ministral-3:8b", "response": "Paris."}
 ```
 
 Champs optionnels : `model`, `system` (prompt système), `temperature` (0–2).
-
-## Docker
-
-```bash
-docker compose up -d --build
-```
-
-`ollama-pull` télécharge `ministral-3:3b` au premier démarrage ; attendre la fin du pull avant le premier appel.

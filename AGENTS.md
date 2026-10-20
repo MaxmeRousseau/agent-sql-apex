@@ -14,12 +14,12 @@
 - `main.py` à la racine est un vestige non utilisé (`print("hello world")`), pas le point d'entrée.
 - Aucun test, linter, formatter ni CI configuré ; `pytest` n'est pas une dépendance.
 - Docker : `docker compose up -d --build backend` (image `projet-backend`, conteneur `backend-service`, port 8000), logs `docker compose logs -f backend`.
-- Compose lance aussi `ollama` (11434) et `ollama-pull`, qui télécharge `ministral-3:3b` ; attendre la fin du pull avant le premier `/chat`.
+- Compose lance le backend seul. Les services `ollama` / `ollama-pull` sont derrière le profil `compose-ollama` (à activer si on ne veut pas de l'Ollama hôte).
 
 ## Config modèle
-- `OLLAMA_BASE_URL` (défaut `http://localhost:11434`), `OLLAMA_MODEL` (défaut `ministral-3:3b`), `OLLAMA_TIMEOUT` (120 s), `HOST`, `PORT`.
-- En local, Ollama n'expose pas forcément `ministral-3:3b` : passer `OLLAMA_MODEL` à un modèle présent (`ollama list`).
-- Modèle/modèle inconnu → 502 avec le détail Ollama ; Ollama injoignable → 503.
+- Par défaut, l'API cible l'Ollama local (hôte), configuré dans `.env` : `OLLAMA_BASE_URL=http://host.docker.internal:11434`, `OLLAMA_MODEL=ministral-3:8b`.
+- `host.docker.internal` ne résout que depuis un conteneur ; sur l'hôte, `uv run projet` utilise `http://localhost:11434` (défaut du code).
+- `OLLAMA_TIMEOUT` (120 s), `HOST`, `PORT` ; un modèle inconnu → 502, Ollama injoignable → 503.
 
 ## Pièges Docker (vérifiés)
 - Le venv est créé directement dans `/opt/.venv` via `UV_PROJECT_ENVIRONMENT` puis copié au même chemin. Ne pas revenir à `/app/.venv` : les shebangs des scripts (`#!/app/.venv/bin/python`) casseraient le runtime (`exec: no such file or directory`).

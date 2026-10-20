@@ -1,0 +1,1 @@
+# Agent conversationnel pour requêtage SQL avec LLM Open Source et interface APEX
